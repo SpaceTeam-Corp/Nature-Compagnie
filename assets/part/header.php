@@ -15,10 +15,22 @@
             <button type="submit">Rechercher</button>
         </form>
 
-        <div class="login">
+        <?php 
+        if(isset($_SESSION['Email'])){
+            echo("<div class='login'>
+            <a href='./Profile.php'><i class='fa-solid fa-user'></i></a>
+            <p style='padding:0;color:blue'>".$_SESSION['Email']."</p>
+            <p><a href='./assets/php/logout.php'>Déconnexion</a></p></div>");//LOGGED
+        } else {
+            echo("<div class='login'>
+            <a href='./register.php'><i class='fa-solid fa-user'></i></a>
+            <p><a href='./login.php'>Connexion </a> / <a href='./register.php'> Inscription</a></p></div>");//NOT LOGGED
+        }
+        ?>
+        <!-- <div class="login">
             <a href="./register.php"><i class="fa-solid fa-user"></i></a>
             <p><a href="./login.php">Connexion </a> / <a href="./register.php"> Inscription</a></p>
-        </div>
+        </div> -->
 
         <div class="cart">
             <i class="fa-solid fa-cart-shopping" onclick=""></i>

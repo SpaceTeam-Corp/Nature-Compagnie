@@ -1,36 +1,46 @@
 <?php
-// Connexion à la base de données
-$dsn = 'mysql:host=nom_du_serveur;dbname=nom_de_la_base_de_donnees';
-$username = 'utilisateur';
-$password = 'mot_de_passe';
+session_start();
+include('./conn_db.php');
 
-try {
-    $db = new PDO($dsn, $username, $password);
-} catch (PDOException $e) {
-    echo 'Connexion échouée : ' . $e->getMessage();
-    exit();
-}
+if (isset($_SESSION['email']) && isset($_SESSION['password'])) 
+    header("Location: ../../Profile.php");
 
-// Récupération des données du formulaire
-$nom = $_POST['nom'];
-$prenom = $_POST['prenom'];
-$email = $_POST['email'];
-$motDePasse = $_POST['motDePasse'];
-$adresse = $_POST['adresse'];
-$codePostal = $_POST['codePostal'];
-$ville = $_POST['ville'];
-$pays = $_POST['pays'];
-$telephone = $_POST['telephone'];
+$nom = mysqli_real_escape_string($conn,htmlspecialchars($_POST['nom']));
+$prenom = mysqli_real_escape_string($conn,htmlspecialchars($_POST['prenom']));
+$email = mysqli_real_escape_string($conn,htmlspecialchars($_POST['email']));
+$motDePasse = mysqli_real_escape_string($conn,htmlspecialchars($_POST['motDePasse']));
+$ConfirmMotDePasse = mysqli_real_escape_string($conn,htmlspecialchars($_POST['ConfirmMotDePasse']));
+// $adresse = $_POST['adresse'];
+// $codePostal = $_POST['codePostal'];
+// $ville = $_POST['ville'];
+// $pays = $_POST['pays'];
+// $telephone = $_POST['telephone'];
 $dateInscription = date('Y-m-d');
 
-// Requête d'insertion préparée
-$query = "INSERT INTO Utilisateurs (nom, prenom, email, motDePasse, adresse, codePostal, ville, pays, telephone, dateInscription) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-$stmt = $db->prepare($query);
-$stmt->execute([$nom, $prenom, $email, $motDePasse, $adresse, $codePostal, $ville, $pays, $telephone, $dateInscription]);
-
-if ($stmt) {
-    echo "Données insérées avec succès";
+if ($prenom != "" && $nom != "" && $motDePasse != "" && $ConfirmMotDePasse != "" && $email != "") {
+        if($motDePasse === $ConfirmMotDePasse){
+            $query = mysqli_query($conn, "SELECT * FROM utilisateurs WHERE `email`='{$email}'");
+            if (mysqli_num_rows($query) == 0) {
+                $motDePasse = sha1($motDePasse);
+                mysqli_query($conn, "INSERT INTO `utilisateurs`(`nom`, `prenom`, `email`, `motDePasse`, `dateInscription`) VALUES ('{$nom}','{$prenom}','{$email}','{$motDePasse}','{$dateInscription}');");
+                echo"oui";
+                $query = mysqli_query($conn, "SELECT * FROM utilisateurs WHERE `email`='{$email}'");
+                if (mysqli_num_rows($query) == 1) {
+                    $_SESSION['Prenom'] = $prenom;
+                    $_SESSION['Nom'] = $nom;
+                    $_SESSION['Email'] = $email;
+                    $_SESSION['password']= $motDePasse;
+                    header('location: ../../Profile.php?code=200');
+                }else{
+                    header('location: ../../register.php?code=1');
+                }
+            }else{
+                header('location: ../../register.php?code=2');//Compte existe deja
+            }
+        } else{
+            echo("non");
+            header('location: ../../register.php?code=3');// Mot de passe ne corresponde pas
+        }
 } else {
-    echo "Erreur lors de l'insertion des données";
+    echo"<script>alert</script>";
 }
-?>
