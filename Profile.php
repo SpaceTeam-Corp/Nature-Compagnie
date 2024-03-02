@@ -1,8 +1,8 @@
 <?php
 session_start();
-if((!isset($_SESSION['Email']))){
+if((!isset($_SESSION['Email']) && !isset($_SESSION['password']) )){
     session_abort();
-    header('location:../login.php');
+    header('location:./login.php');
 }
 ?>
 <!DOCTYPE html>
@@ -15,6 +15,10 @@ if((!isset($_SESSION['Email']))){
     </head>
     <body>
         <?php include("./assets/part/header.php")?>
-    
+        <?php 
+            if($_SESSION['Email'] == "admin@admin") {
+                include('./assets/part/dashboard_admin.php');           
+            }
+        ?>
     </body>
 </html>
